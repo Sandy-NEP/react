@@ -163,7 +163,7 @@ const cartSlice = createSlice({
 
 export const selectCartTotal = (state) => {
   return state.cart.items.reduce(
-    (total, item) => total + item.price * item.quantity,
+    (total, item) => total + Number(item.price) * item.quantity,
     0
   );
 };
@@ -171,7 +171,7 @@ export const selectCartTotal = (state) => {
 export const selectSelectedItemsTotal = (state) => {
   return state.cart.items.reduce((total, item) => {
     if (item.selected) {
-      return total + item.price * item.quantity;
+      return total + Number(item.price) * item.quantity;
     }
     return total;
   }, 0);
@@ -180,7 +180,7 @@ export const selectSelectedItemsTotal = (state) => {
 export const selectSelectedItemsTotalAmount = (state) => {
   return state.cart.items
     .filter(item => item.selected)
-    .reduce((total, item) => total + (item.price * item.quantity), 0);
+    .reduce((total, item) => total + (Number(item.price) * item.quantity), 0);
 };
 
 export const selectSelectedItemsCount = (state) => {

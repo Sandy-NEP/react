@@ -95,7 +95,7 @@ const CartLeft = () => {
                       </div>
 
                       <div className='flex gap-5 items-center'>
-                        <p className="font-medium text-[#B8A38A] max-sm:text-[13px] max-[479px]:hidden">₹. {item.price.toFixed(2)}</p>
+                        <p className="font-medium text-[#B8A38A] max-sm:text-[13px] max-[479px]:hidden">₹. {Number(item.price).toFixed(2)}</p>
                         <div className="flex items-center gap-2">
                           <button onClick={() => {
                             if (item.quantity > 1) {
@@ -126,7 +126,7 @@ const CartLeft = () => {
 
                   <div className="w-2/6 max-sm:w-full relative">
                     <span className='flex flex-col max-sm:flex-row max-sm:mt-3 items-end justify-evenly max-sm:items-center max-sm:justify-between h-full'>
-                      <p className="font-semibold max-sm:text-[14px]">₹. {(item.price * item.quantity).toFixed(2)}</p>
+                      <p className="font-semibold max-sm:text-[14px]">₹. {(Number(item.price) * item.quantity).toFixed(2)}</p>
                       <button
                         onClick={() => dispatch(removeItemFromCartAsync(item.id))}
                         className="p-1 text-red-500 hover:text-red-700 flex items-center gap-1"
