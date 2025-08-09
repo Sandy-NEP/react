@@ -1,0 +1,189 @@
+/* General Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+/* Login Container */
+.login-container {
+    max-width: 400px;
+    margin: 100px auto;
+    padding: 30px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.login-container h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #2c3e50;
+}
+
+/* Form Styles */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.login-btn:hover {
+    background-color: #2980b9;
+}
+
+.error-message {
+    color: #e74c3c;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #fadbd8;
+    border-radius: 4px;
+    text-align: center;
+}
+
+/* Admin Panel Styles */
+.admin-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.admin-header h1 {
+    color: #2c3e50;
+    margin: 0;
+}
+
+.admin-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    padding: 8px 16px;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.btn {
+    background-color: #3498db;
+    color: white;
+}
+
+.btn:hover {
+    background-color: #2980b9;
+}
+
+.btn.edit {
+    background-color: #2ecc71;
+}
+
+.btn.edit:hover {
+    background-color: #27ae60;
+}
+
+.btn.delete {
+    background-color: #e74c3c;
+}
+
+.btn.delete:hover {
+    background-color: #c0392b;
+}
+
+.btn.logout {
+    background-color: #95a5a6;
+}
+
+.btn.logout:hover {
+    background-color: #7f8c8d;
+}
+
+/* Table Styles */
+.users-table {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #3498db;
+    color: white;
+    font-weight: 600;
+}
+
+tr:hover {
+    background-color: #f5f5f5;
+}
+
+.actions {
+    display: flex;
+    gap: 5px;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .admin-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .admin-actions {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+    
+    .btn {
+        flex-grow: 1;
+        text-align: center;
+    }
+}
