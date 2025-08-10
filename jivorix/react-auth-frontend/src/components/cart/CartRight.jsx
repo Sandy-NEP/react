@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectSelectedItemsTotal, selectSelectedItemsCount, setPaymentSuccess } from '../../redux/cart/cartSlice';
+import { checkoutAPI } from '../../services/cartService';
 import { FaMapLocationDot, FaCity, FaTag, FaPhone } from "react-icons/fa6";
 import { IoHome } from "react-icons/io5";
 import CreditCardPayment from './payment/CreditCardPayment';
@@ -48,6 +49,7 @@ const CartRight = () => {
   const [showPaymentSuccess, setShowPaymentSuccess] = useState(false);
   const [showNoItemsSelected, setShowNoItemsSelected] = useState(false);
   const [fetchError, setFetchError] = useState('');
+  const [isProcessingCheckout, setIsProcessingCheckout] = useState(false);
 
   const [appliedPromo, setAppliedPromo] = useState(null);
   const [deliveryCharge, setDeliveryCharge] = useState(selectedItemsCount * 50);
@@ -216,6 +218,52 @@ const CartRight = () => {
     return 'TXN' + Math.floor(Math.random() * 1000000000).toString().padStart(10, '0');
   };
 
+  const processCheckout = async (paymentMethodType, additionalData = {}) => {
+    setIsProcessingCheckout(true);
+    try {
+      const selectedItems = cartItems.filter(item => item.selected);
+
+      // Map payment method names to backend format
+      const paymentMethodMap = {
+        'payment on deliver': 'paymentondelivery',
+        'Online payment': 'onlinepayment',
+        'Credit Card payment': 'creditcardpayment'
+      };
+
+      const checkoutData = {
+        customerName: formData.customerName,
+        phone: formData.phone,
+        email: localStorage.getItem('userEmail') || 'user@example.com', // Get from localStorage or user data
+        country: formData.country,
+        city: formData.city,
+        address: formData.address,
+        paymentMethod: paymentMethodMap[paymentMethodType] || 'paymentondelivery',
+        deliveryCharge: deliveryCharge,
+        discount: discount,
+        appliedPromo: appliedPromo ? appliedPromo.label : null,
+        ...additionalData
+      };
+
+      const response = await checkoutAPI(checkoutData);
+
+      if (response.success) {
+        showPaymentSuccessModal({
+          transactionId: response.data.transactionId,
+          paymentMethod: paymentMethodType,
+          paymentAmount: response.data.paymentAmount,
+          ...response.data
+        });
+      } else {
+        throw new Error(response.message || 'Checkout failed');
+      }
+    } catch (error) {
+      console.error('Checkout error:', error);
+      setFetchError(error.message || 'Failed to process checkout');
+    } finally {
+      setIsProcessingCheckout(false);
+    }
+  };
+
   const showPaymentSuccessModal = (paymentData = {}) => {
     const transactionDate = new Date().toLocaleString();
     const selectedItems = cartItems.filter(item => item.selected);
@@ -261,8 +309,23 @@ const CartRight = () => {
   };
 
   // Handler for the new PaymentPortal
-  const handlePaymentSuccess = (paymentDetails) => {
-    showPaymentSuccessModal(paymentDetails);
+  const handlePaymentSuccess = async (paymentDetails) => {
+    // Process checkout with additional payment details
+    const additionalData = {};
+
+    if (paymentMethod === 'Credit Card payment') {
+      additionalData.cardLastFour = paymentDetails.cardLastFour;
+      additionalData.cardType = paymentDetails.cardType;
+      additionalData.paymentProcessor = paymentDetails.paymentProcessor || 'stripe';
+      additionalData.processorTransactionId = paymentDetails.processorTransactionId;
+      additionalData.paymentStatus = paymentDetails.paymentStatus || 'completed';
+    } else if (paymentMethod === 'Online payment') {
+      additionalData.paymentGateway = paymentDetails.paymentGateway || 'default';
+      additionalData.gatewayTransactionId = paymentDetails.gatewayTransactionId;
+      additionalData.paymentStatus = paymentDetails.paymentStatus || 'completed';
+    }
+
+    await processCheckout(paymentMethod, additionalData);
   };
 
   const handlePaymentMethodChange = (method) => {
@@ -272,7 +335,7 @@ const CartRight = () => {
     setShowOnlinePayment(false);
   };
 
-  const handleOrderSelected = (e) => {
+  const handleOrderSelected = async (e) => {
     e.preventDefault();
 
     if (selectedItemsCount === 0) {
@@ -289,8 +352,8 @@ const CartRight = () => {
     } else if (paymentMethod === 'Online payment') {
       setShowOnlinePayment(true);
     } else {
-      // Direct payment on delivery
-      showPaymentSuccessModal();
+      // Direct payment on delivery - process checkout immediately
+      await processCheckout(paymentMethod);
     }
   };
 
@@ -575,9 +638,10 @@ const CartRight = () => {
         <div className='w-full mt-6'>
           <button
             type="submit"
-            className="px-3 py-3 bg-green-500 text-white rounded-[5px] w-full hover:bg-green-600 transition-colors duration-300 font-medium text-lg"
+            disabled={isProcessingCheckout}
+            className="px-3 py-3 bg-green-500 text-white rounded-[5px] w-full hover:bg-green-600 transition-colors duration-300 font-medium text-lg disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            {paymentMethod === 'Credit Card payment' ? 'Proceed to Payment' : 'Place Order'}
+            {isProcessingCheckout ? 'Processing...' : (paymentMethod === 'Credit Card payment' ? 'Proceed to Payment' : 'Place Order')}
           </button>
         </div>
       </form>

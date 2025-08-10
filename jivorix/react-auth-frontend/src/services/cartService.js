@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost/react-auth-backend';
+// Use the current running backend server for development
+const API_BASE_URL = 'http://localhost:8000';
 
 // Get user from localStorage
 const getUser = () => {
@@ -21,15 +22,16 @@ export const addItemToCartAPI = async (item, selectedSize = 'M') => {
   }
 
   try {
-    const response = await axios.post(`${API_BASE_URL}/cart/item.php`, {
+    const response = await axios.post(`${API_BASE_URL}/cart/index.php?action=add`, {
       userId: user.id,
-      product_id: item._id,
+      productId: item._id,
       name: item.name,
       image: item.image,
-      desc: item.desc,
+      description: item.desc,
       price: item.price,
       available: item.available,
-      selectedSize: selectedSize
+      size: selectedSize,
+      quantity: 1
     }, {
       headers: {
         'Content-Type': 'application/json'
@@ -51,7 +53,7 @@ export const getCartItemsAPI = async () => {
   }
 
   try {
-    const response = await axios.get(`${API_BASE_URL}/cart/get_cart.php?userId=${user.id}`);
+    const response = await axios.get(`${API_BASE_URL}/cart/index.php?action=view&userId=${user.id}`);
     return response.data;
   } catch (error) {
     console.error('Error getting cart items:', error);
@@ -67,15 +69,7 @@ export const removeItemFromCartAPI = async (cartItemId) => {
   }
 
   try {
-    const response = await axios.post(`${API_BASE_URL}/cart/remove_item.php`, {
-      userId: user.id,
-      cartItemId: cartItemId
-    }, {
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-
+    const response = await axios.delete(`${API_BASE_URL}/cart/index.php?action=remove&itemId=${cartItemId}`);
     return response.data;
   } catch (error) {
     console.error('Error removing item from cart:', error);
@@ -91,9 +85,8 @@ export const updateCartItemQuantityAPI = async (cartItemId, quantity) => {
   }
 
   try {
-    const response = await axios.post(`${API_BASE_URL}/cart/update_quantity.php`, {
-      userId: user.id,
-      cartItemId: cartItemId,
+    const response = await axios.put(`${API_BASE_URL}/cart/index.php?action=update`, {
+      itemId: cartItemId,
       quantity: quantity
     }, {
       headers: {
@@ -104,6 +97,57 @@ export const updateCartItemQuantityAPI = async (cartItemId, quantity) => {
     return response.data;
   } catch (error) {
     console.error('Error updating cart item quantity:', error);
+    throw error;
+  }
+};
+
+// Get available payment methods
+export const getPaymentMethodsAPI = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/cart/payment_methods.php?action=list`);
+    return response.data;
+  } catch (error) {
+    console.error('Error getting payment methods:', error);
+    throw error;
+  }
+};
+
+// Process checkout with selected payment method
+export const checkoutAPI = async (checkoutData) => {
+  const user = getUser();
+  if (!user) {
+    throw new Error('User not logged in');
+  }
+
+  try {
+    const response = await axios.post(`${API_BASE_URL}/cart/checkout.php`, {
+      userId: user.id,
+      ...checkoutData
+    }, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error processing checkout:', error);
+    throw error;
+  }
+};
+
+// Get user orders
+export const getUserOrdersAPI = async () => {
+  const user = getUser();
+  if (!user) {
+    throw new Error('User not logged in');
+  }
+
+  try {
+    const response = await axios.get(`${API_BASE_URL}/cart/orders.php?action=list&userId=${user.id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error getting user orders:', error);
     throw error;
   }
 };

@@ -133,6 +133,56 @@ try {
             order_date DATETIME NOT NULL,
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+        CREATE TABLE IF NOT EXISTS onlinepayment (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            customer_name VARCHAR(100) NOT NULL,
+            phone VARCHAR(15) NOT NULL,
+            email VARCHAR(255) NOT NULL,
+            country VARCHAR(100) NOT NULL,
+            city VARCHAR(100) NOT NULL,
+            address TEXT NOT NULL,
+            products JSON NOT NULL,
+            transaction_id VARCHAR(50) NOT NULL UNIQUE,
+            payment_method VARCHAR(50) NOT NULL,
+            payment_amount DECIMAL(10, 2) NOT NULL,
+            product_amount DECIMAL(10, 2) NOT NULL,
+            delivery_charge DECIMAL(10, 2) NOT NULL,
+            discount DECIMAL(10, 2) NOT NULL,
+            applied_promo VARCHAR(100),
+            order_date DATETIME NOT NULL,
+            payment_gateway VARCHAR(50),
+            gateway_transaction_id VARCHAR(100),
+            payment_status ENUM('pending', 'completed', 'failed', 'cancelled') DEFAULT 'pending',
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+        CREATE TABLE IF NOT EXISTS creditcardpayment (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            customer_name VARCHAR(100) NOT NULL,
+            phone VARCHAR(15) NOT NULL,
+            email VARCHAR(255) NOT NULL,
+            country VARCHAR(100) NOT NULL,
+            city VARCHAR(100) NOT NULL,
+            address TEXT NOT NULL,
+            products JSON NOT NULL,
+            transaction_id VARCHAR(50) NOT NULL UNIQUE,
+            payment_method VARCHAR(50) NOT NULL,
+            payment_amount DECIMAL(10, 2) NOT NULL,
+            product_amount DECIMAL(10, 2) NOT NULL,
+            delivery_charge DECIMAL(10, 2) NOT NULL,
+            discount DECIMAL(10, 2) NOT NULL,
+            applied_promo VARCHAR(100),
+            order_date DATETIME NOT NULL,
+            card_last_four VARCHAR(4),
+            card_type VARCHAR(20),
+            payment_processor VARCHAR(50),
+            processor_transaction_id VARCHAR(100),
+            payment_status ENUM('pending', 'completed', 'failed', 'cancelled') DEFAULT 'pending',
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ");
 } catch(PDOException $e) {
     sendResponse(false, "Database connection or table creation failed: " . $e->getMessage());
