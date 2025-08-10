@@ -68,21 +68,21 @@ const PaymentSuccess = ({ onClose }) => {
             <div className="border-t border-gray-200 pt-4">
               <div className="flex justify-between mb-2">
                 <span className="text-gray-600">Product Amount:</span>
-                <span className="font-medium">₹{productAmount.toFixed(2)}</span>
+                <span className="font-medium">₹{Number(productAmount).toFixed(2)}</span>
               </div>
               <div className="flex justify-between mb-2">
                 <span className="text-gray-600">Delivery Charge:</span>
-                <span className="font-medium">₹{deliveryCharge.toFixed(2)}</span>
+                <span className="font-medium">₹{Number(deliveryCharge).toFixed(2)}</span>
               </div>
               {discount > 0 && (
                 <div className="flex justify-between mb-2">
                   <span className="text-gray-600">Discount {appliedPromo ? `(${appliedPromo})` : ''}:</span>
-                  <span className="font-medium text-green-600">-₹{discount.toFixed(2)}</span>
+                  <span className="font-medium text-green-600">-₹{Number(discount).toFixed(2)}</span>
                 </div>
               )}
               <div className="flex justify-between font-bold text-lg mt-3 pt-3 border-t border-gray-200">
                 <span>Total Paid:</span>
-                <span>₹{paymentAmount.toFixed(2)}</span>
+                <span>₹{Number(paymentAmount).toFixed(2)}</span>
               </div>
             </div>
           </div>

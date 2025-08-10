@@ -77,10 +77,10 @@ const CreditCardPayment = ({
       paymentMethod: 'Credit Card',
       customerName: cardData.cardHolderName,
       mobileNumber: '', // You might want to collect this separately
-      paymentAmount: totalAmount,
-      productAmount: productAmount,
-      deliveryCharge: deliveryCharge,
-      discount: discount,
+      paymentAmount: Number(totalAmount),
+      productAmount: Number(productAmount),
+      deliveryCharge: Number(deliveryCharge),
+      discount: Number(discount),
       appliedPromo: appliedPromo?.label || null
     });
 
@@ -172,19 +172,19 @@ const CreditCardPayment = ({
             {/* Summary */}
             <div className="space-y-2 text-sm text-gray-700 bg-gray-100 p-3 rounded-lg">
               <p className="flex justify-between">
-                Product: <span>₹{productAmount.toFixed(2)}</span>
+                Product: <span>₹{Number(productAmount).toFixed(2)}</span>
               </p>
               <p className="flex justify-between">
-                Delivery: <span>₹{deliveryCharge.toFixed(2)}</span>
+                Delivery: <span>₹{Number(deliveryCharge).toFixed(2)}</span>
               </p>
               {discount > 0 && (
                 <p className="flex justify-between text-green-600">
-                  Discount ({appliedPromo?.label}): <span>-₹{discount.toFixed(2)}</span>
+                  Discount ({appliedPromo?.label}): <span>-₹{Number(discount).toFixed(2)}</span>
                 </p>
               )}
               <hr />
               <p className="flex justify-between font-bold">
-                Total: <span>₹{totalAmount.toFixed(2)}</span>
+                Total: <span>₹{Number(totalAmount).toFixed(2)}</span>
               </p>
             </div>
 

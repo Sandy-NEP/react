@@ -6,6 +6,7 @@ import { IoHome } from "react-icons/io5";
 import CreditCardPayment from './payment/CreditCardPayment';
 import OnlinePayment from './payment/OnlinePayment';
 import PaymentSuccess from './payment/PaymentSuccess';
+import PaymentPortal from './payment/PaymentPortal'; // Import the new PaymentPortal
 import { useNavigate } from 'react-router-dom';
 
 const PROMO_CODES = {
@@ -141,7 +142,7 @@ const CartRight = () => {
 
   const applyPromoCode = () => {
     const promoCode = formData.promoCode.trim().toUpperCase();
-    
+
     if (!promoCode) {
       setErrors(prev => ({ ...prev, promoCode: 'Please enter a promo code' }));
       return;
@@ -176,9 +177,7 @@ const CartRight = () => {
       customerName: ''
     };
 
-    if (!
-
-formData.country.trim()) {
+    if (!formData.country.trim()) {
       newErrors.country = 'Country is required';
       valid = false;
     }
@@ -220,7 +219,7 @@ formData.country.trim()) {
   const showPaymentSuccessModal = (paymentData = {}) => {
     const transactionDate = new Date().toLocaleString();
     const selectedItems = cartItems.filter(item => item.selected);
-    
+
     const paymentDetails = {
       transactionId: paymentData.transactionId || generateTransactionId(),
       date: paymentData.date || transactionDate,
@@ -261,6 +260,53 @@ formData.country.trim()) {
     setShowPaymentSuccess(true);
   };
 
+  // Handler for the new PaymentPortal
+  const handlePaymentSuccess = (paymentDetails) => {
+    showPaymentSuccessModal(paymentDetails);
+  };
+
+  const handlePaymentMethodChange = (method) => {
+    setPaymentMethod(method);
+    // Close other payment modals when a new method is selected
+    setShowCreditCardPayment(false);
+    setShowOnlinePayment(false);
+  };
+
+  const handleOrderSelected = (e) => {
+    e.preventDefault();
+
+    if (selectedItemsCount === 0) {
+      setShowNoItemsSelected(true);
+      return;
+    }
+
+    if (!validateForm()) {
+      return;
+    }
+
+    if (paymentMethod === 'Credit Card payment') {
+      setShowCreditCardPayment(true);
+    } else if (paymentMethod === 'Online payment') {
+      setShowOnlinePayment(true);
+    } else {
+      // Direct payment on delivery
+      showPaymentSuccessModal();
+    }
+  };
+
+  // Close all payment modals and reset form if user cancels
+  const handleCloseAllPaymentModals = () => {
+    setShowCreditCardPayment(false);
+    setShowOnlinePayment(false);
+    // Optionally reset form or show a confirmation to the user
+  };
+
+  // Function to close the Payment Portal
+  const handleClosePaymentPortal = () => {
+    setShowCreditCardPayment(false);
+    setShowOnlinePayment(false);
+  };
+
   const handlePaymentSuccessClose = () => {
     setShowPaymentSuccess(false);
     setFormData({
@@ -276,27 +322,6 @@ formData.country.trim()) {
     navigate('/order-details');
   };
 
-  const handleOrderSelected = (e) => {
-    e.preventDefault();
-    
-    if (selectedItemsCount === 0) {
-      setShowNoItemsSelected(true);
-      return;
-    }
-
-    if (!validateForm()) {
-      return;
-    }
-
-    if (paymentMethod === 'Credit Card payment') {
-      setShowCreditCardPayment(true);
-    } else if (paymentMethod === 'Online payment') {
-      setShowOnlinePayment(true);
-    } else {
-      showPaymentSuccessModal();
-    }
-  };
-
   return (
     <section className='bg-white p-6 max-md:p-4 max-sm:p-3 rounded-[15px] shadow-[0_0_6px_0_rgb(0,0,0,0.2)] w-full'>
       <div className='flex justify-between items-center mb-4'>
@@ -308,8 +333,8 @@ formData.country.trim()) {
       {showNoItemsSelected && (
         <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg flex justify-between items-center">
           <span>Please select at least one item before proceeding</span>
-          <button 
-            onClick={() => setShowNoItemsSelected(false)} 
+          <button
+            onClick={() => setShowNoItemsSelected(false)}
             className="text-red-700 hover:text-red-900"
           >
             ×
@@ -320,8 +345,8 @@ formData.country.trim()) {
       {fetchError && (
         <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg flex justify-between items-center">
           <span>{fetchError}</span>
-          <button 
-            onClick={() => setFetchError('')} 
+          <button
+            onClick={() => setFetchError('')}
             className="text-red-700 hover:text-red-900"
           >
             ×
@@ -334,7 +359,7 @@ formData.country.trim()) {
           <li className="text-lg font-medium text-gray-700 max-md:text-[14px]">Product Amount:</li>
           <li className="text-lg font-semibold text-gray-700 max-md:text-[14px]">₹ {selectedItemsTotal.toFixed(2)}</li>
         </ul>
-        
+
         <ul className='flex items-center justify-between w-full'>
           <li className="text-lg font-medium text-gray-700 max-md:text-[14px]">Selected Items:</li>
           <li className="text-lg font-semibold text-gray-700 max-md:text-[14px]">
@@ -365,7 +390,7 @@ formData.country.trim()) {
         )}
 
         <hr className='w-full h-[2px] bg-gray-300 mx-1' />
-        
+
         <ul className='flex items-center justify-between w-full'>
           <li className="text-lg font-medium text-gray-700 max-md:text-[14px]">Total Amount:</li>
           <li className="text-lg font-semibold text-gray-700 max-md:text-[14px]">₹ {totalAmount.toFixed(2)}</li>
@@ -377,96 +402,96 @@ formData.country.trim()) {
           <li>
             <h4 className='text-gray-700 text-xl font-medium mb-2 max-sm:text-[18px]'>Customer Name</h4>
             <div className='relative w-full h-auto'>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 name="customerName"
                 value={formData.customerName}
                 onChange={handleInputChange}
-                placeholder='Your full name' 
-                className={`px-5 py-2 text-[15px] text-gray-700 rounded-[5px] shadow-[0_0_5px_0_rgba(0,0,0,0.2)] w-full ${errors.customerName ? 'border-red-500 border-2' : ''}`} 
+                placeholder='Your full name'
+                className={`px-5 py-2 text-[15px] text-gray-700 rounded-[5px] shadow-[0_0_5px_0_rgba(0,0,0,0.2)] w-full ${errors.customerName ? 'border-red-500 border-2' : ''}`}
               />
               {errors.customerName && <p className="text-red-500 text-sm mt-1">{errors.customerName}</p>}
             </div>
           </li>
-          
+
           <li>
             <h4 className='text-gray-700 text-xl font-medium mb-2 max-sm:text-[18px]'>Country</h4>
             <div className='relative w-full h-auto'>
               <FaMapLocationDot className="absolute text-gray-500 right-4 top-1/2 transform -translate-y-1/2" />
-              <input 
-               _grp_type="text" 
+              <input
+               _grp_type="text"
                 name="country"
                 value={formData.country}
                 readOnly
-                className={`px-5 py-2 text-[15px] text-gray-700 rounded-[5px] shadow-[0_0_5px_0_rgba(0,0,0,0.2)] w-full bg-gray-100 ${errors.country ? 'border-red-500 border-2' : ''}`} 
+                className={`px-5 py-2 text-[15px] text-gray-700 rounded-[5px] shadow-[0_0_5px_0_rgba(0,0,0,0.2)] w-full bg-gray-100 ${errors.country ? 'border-red-500 border-2' : ''}`}
               />
               {errors.country && <p className="text-red-500 text-sm mt-1">{errors.country}</p>}
             </div>
           </li>
-          
+
           <li>
             <h4 className='text-gray-700 text-xl font-medium mb-2 max-sm:text-[18px]'>City</h4>
             <div className='relative w-full h-auto'>
               <FaCity className="absolute text-gray-500 right-4 top-1/2 transform -translate-y-1/2" />
-              <input 
-                type="text" 
+              <input
+                type="text"
                 name="city"
                 value={formData.city}
                 onChange={handleInputChange}
-                placeholder='Kathmandu' 
-                className={`px-5 py-2 text-[15px] text-gray-700 rounded-[5px] shadow-[0_0_5px_0_rgba(0,0,0,0.2)] w-full ${errors.city ? 'border-red-500 border-2' : ''}`} 
+                placeholder='Kathmandu'
+                className={`px-5 py-2 text-[15px] text-gray-700 rounded-[5px] shadow-[0_0_5px_0_rgba(0,0,0,0.2)] w-full ${errors.city ? 'border-red-500 border-2' : ''}`}
               />
               {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city}</p>}
             </div>
           </li>
-          
+
           <li>
             <h4 className='text-gray-700 text-xl font-medium mb-2 max-sm:text-[18px]'>Address</h4>
             <div className='relative w-full h-auto'>
               <IoHome className="absolute text-gray-500 right-4 top-1/2 transform -translate-y-1/2" />
-              <input 
-                type="text" 
+              <input
+                type="text"
                 name="address"
                 value={formData.address}
                 onChange={handleInputChange}
-                placeholder='State, colony, home number' 
-                className={`px-5 py-2 text-[15px] text-gray-700 rounded-[5px] shadow-[0_0_5px_0_rgba(0,0,0,0.2)] w-full ${errors.address ? 'border-red-500 border-2' : ''}`} 
+                placeholder='State, colony, home number'
+                className={`px-5 py-2 text-[15px] text-gray-700 rounded-[5px] shadow-[0_0_5px_0_rgba(0,0,0,0.2)] w-full ${errors.address ? 'border-red-500 border-2' : ''}`}
               />
               {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
             </div>
           </li>
-          
+
           <li>
             <h4 className='text-gray-700 text-xl font-medium mb-2 max-sm:text-[18px]'>Phone Number</h4>
             <div className='relative w-full h-auto'>
               <FaPhone className="absolute text-gray-500 right-4 top-1/2 transform -translate-y-1/2" />
-              <input 
-                type="tel" 
+              <input
+                type="tel"
                 name="phone"
                 value={formData.phone}
                 onChange={handleInputChange}
-                placeholder='9876543210' 
+                placeholder='9876543210'
                 maxLength="10"
-                className={`px-5 py-2 text-[15px] text-gray-700 rounded-[5px] shadow-[0_0_5px_0_rgba(0,0,0,0.2)] w-full ${errors.phone ? 'border-red-500 border-2' : ''}`} 
+                className={`px-5 py-2 text-[15px] text-gray-700 rounded-[5px] shadow-[0_0_5px_0_rgba(0,0,0,0.2)] w-full ${errors.phone ? 'border-red-500 border-2' : ''}`}
               />
               {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
             </div>
           </li>
-          
+
           <li>
             <h4 className='text-gray-700 text-xl font-medium mb-2 max-sm:text-[18px]'>Promo Code</h4>
             <div className='relative w-full h-auto'>
               <div className="flex gap-2">
-                <input 
-                  type="text" 
-                  name="promoCode" 
+                <input
+                  type="text"
+                  name="promoCode"
                   value={formData.promoCode}
                   onChange={handleInputChange}
-                  placeholder='Enter promo code' 
+                  placeholder='Enter promo code'
                   disabled={!!appliedPromo}
                   className={`px-5 py-2 text-[15px] text-gray-700 rounded-[5px] shadow-[0_0_5px_0_rgba(0,0,0,0.2)] w-full ${
                     errors.promoCode ? 'border-red-500 border-2' : ''
-                  } ${appliedPromo ? 'bg-gray-100' : ''}`} 
+                  } ${appliedPromo ? 'bg-gray-100' : ''}`}
                 />
                 {appliedPromo ? (
                   <button
@@ -507,49 +532,49 @@ formData.country.trim()) {
           <h5 className='text-gray-800 text-xl font-semibold mb-4'>Payment Method</h5>
           <div className='rounded-[10px] shadow-[0_0_10px_0_rgba(0,0,0,0.1)]'>
             <label className='flex gap-5 py-4 px-3 items-center text-gray-700 text-lg font-medium cursor-pointer hover:bg-gray-100 rounded-t-[10px]'>
-              <input 
-                type="radio" 
-                className='w-4 h-4' 
-                name="paymentOption" 
-                value="payment on deliver" 
+              <input
+                type="radio"
+                className='w-4 h-4'
+                name="paymentOption"
+                value="payment on deliver"
                 checked={paymentMethod === 'payment on deliver'}
-                onChange={() => setPaymentMethod('payment on deliver')}
-                required 
+                onChange={() => handlePaymentMethodChange('payment on deliver')}
+                required
               />
               Payment On Delivery
             </label>
             <hr className='w-full h-[2px] bg-gray-300' />
             <label className='flex gap-5 py-4 px-3 items-center text-gray-700 text-lg font-medium cursor-pointer hover:bg-gray-100'>
-              <input 
-                type="radio" 
-                className='w-4 h-4' 
-                name="paymentOption" 
-                value="Online payment" 
+              <input
+                type="radio"
+                className='w-4 h-4'
+                name="paymentOption"
+                value="Online payment"
                 checked={paymentMethod === 'Online payment'}
-                onChange={() => setPaymentMethod('Online payment')}
-                required 
+                onChange={() => handlePaymentMethodChange('Online payment')}
+                required
               />
               Online Payment
             </label>
             <hr className='w-full h-[2px] bg-gray-300' />
             <label className='flex gap-5 py-4 px-3 items-center text-gray-700 text-lg font-medium cursor-pointer hover:bg-gray-100 rounded-b-[10px]'>
-              <input 
-                type="radio" 
-                className='w-4 h-4' 
-                name="paymentOption" 
-                value="Credit Card payment" 
+              <input
+                type="radio"
+                className='w-4 h-4'
+                name="paymentOption"
+                value="Credit Card payment"
                 checked={paymentMethod === 'Credit Card payment'}
-                onChange={() => setPaymentMethod('Credit Card payment')}
-                required 
+                onChange={() => handlePaymentMethodChange('Credit Card payment')}
+                required
               />
               Credit Card Payment
             </label>
           </div>
         </span>
-        
+
         <div className='w-full mt-6'>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="px-3 py-3 bg-green-500 text-white rounded-[5px] w-full hover:bg-green-600 transition-colors duration-300 font-medium text-lg"
           >
             {paymentMethod === 'Credit Card payment' ? 'Proceed to Payment' : 'Place Order'}
@@ -557,30 +582,21 @@ formData.country.trim()) {
         </div>
       </form>
 
-      {showCreditCardPayment && (
-        <CreditCardPayment
-          onClose={() => setShowCreditCardPayment(false)}
-          onPaymentSuccess={showPaymentSuccessModal}
+      {/* Payment Portal */}
+      {(showCreditCardPayment || showOnlinePayment) && (
+        <PaymentPortal
+          onClose={handleClosePaymentPortal}
           productAmount={selectedItemsTotal}
           deliveryCharge={deliveryCharge}
-          discount={discount}
-          totalAmount={totalAmount}
+          discount={discount} // Corrected from discountAmount to discount
+          totalAmount={totalAmount} // Corrected from finalTotal to totalAmount
           appliedPromo={appliedPromo}
+          onPaymentSuccess={handlePaymentSuccess}
+          // Pass the currently selected payment method to PaymentPortal
+          paymentMethod={paymentMethod === 'Credit Card payment' ? 'Credit Card' : 'Online'}
         />
       )}
 
-      {showOnlinePayment && (
-        <OnlinePayment
-          onClose={() => setShowOnlinePayment(false)}
-          onPaymentSuccess={showPaymentSuccessModal}
-          productAmount={selectedItemsTotal}
-          deliveryCharge={deliveryCharge}
-          discount={discount}
-          totalAmount={totalAmount}
-          appliedPromo={appliedPromo}
-        />
-      )}
-      
       {showPaymentSuccess && (
         <PaymentSuccess
           onClose={handlePaymentSuccessClose}

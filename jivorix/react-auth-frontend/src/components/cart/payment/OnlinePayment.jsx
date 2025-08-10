@@ -1,6 +1,7 @@
 //src/components/cart/payment/OnlinePayment.jsx
 import React, { useState, useEffect } from 'react';
 import { FaTimes, FaArrowLeft, FaCheckCircle } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 const OnlinePayment = ({
   onClose,
@@ -22,6 +23,7 @@ const OnlinePayment = ({
   });
   const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const navigate = useNavigate();
 
   const PAYMENT_OPTIONS = [
     {
@@ -102,6 +104,7 @@ const processPayment = () => {
 
   setTimeout(() => {
     setPaymentProcessing(false);
+    setPaymentSuccess(true);
 
     const transactionData = {
       transactionId: 'TXN' + Math.floor(Math.random() * 1000000000).toString().padStart(10, '0'),
@@ -109,16 +112,18 @@ const processPayment = () => {
       paymentMethod: selectedMethod.name,
       customerName: paymentDetails.customerName,
       mobileNumber: paymentDetails.mobileNumber,
-      paymentAmount: totalAmount,
+      paymentAmount: Number(totalAmount),
       appliedPromo: appliedPromo ? appliedPromo.label : null,
-      productAmount,
-      deliveryCharge,
-      discount
+      productAmount: Number(productAmount),
+      deliveryCharge: Number(deliveryCharge),
+      discount: Number(discount)
     };
 
-    onPaymentSuccess(transactionData);
-    onClose(); // ✅ Hide the modal
-    navigate('/payment-success', { state: { transaction: transactionData } }); // ✅ Redirect
+    // Show success for 2 seconds, then call onPaymentSuccess
+    setTimeout(() => {
+      onPaymentSuccess(transactionData);
+      onClose();
+    }, 2000);
   }, 2000);
 };
 
@@ -201,7 +206,7 @@ const processPayment = () => {
             </div>
             <div>
               <h3 className="text-xl font-bold text-gray-800">Pay with {methodConfig.name}</h3>
-              <p className="text-gray-600">Amount to pay: ₹{totalAmount.toFixed(2)}</p>
+              <p className="text-gray-600">Amount to pay: ₹{Number(totalAmount).toFixed(2)}</p>
             </div>
           </div>
           
@@ -268,7 +273,7 @@ const processPayment = () => {
               className="w-full py-3 text-white rounded-xl font-semibold tracking-wide hover:opacity-90 transition"
               style={{ backgroundColor: methodConfig.primaryColor }}
             >
-              Pay ₹{totalAmount.toFixed(2)} with {methodConfig.name}
+              Pay ₹{Number(totalAmount).toFixed(2)} with {methodConfig.name}
             </button>
           </form>
         </div>
@@ -345,16 +350,16 @@ const processPayment = () => {
 
                 <div className="flex justify-between text-gray-700">
                   <span>Product Amount:</span>
-                  <span className="font-medium">₹{productAmount.toFixed(2)}</span>
+                  <span className="font-medium">₹{Number(productAmount).toFixed(2)}</span>
                 </div>
 
                 <div className="flex justify-between text-gray-700">
                   <span>Delivery Charge:</span>
                   <span className="font-medium">
                     {appliedPromo?.type === 'fixed' ? (
-                      <span className="text-green-500 line-through">₹{deliveryCharge.toFixed(2)}</span>
+                      <span className="text-green-500 line-through">₹{Number(deliveryCharge).toFixed(2)}</span>
                     ) : (
-                      `₹${deliveryCharge.toFixed(2)}`
+                      `₹${Number(deliveryCharge).toFixed(2)}`
                     )}
                   </span>
                 </div>
@@ -364,7 +369,7 @@ const processPayment = () => {
                     <span>
                       Discount {appliedPromo ? `(${appliedPromo.label})` : ''}:
                     </span>
-                    <span className="font-medium text-green-600">-₹{discount.toFixed(2)}</span>
+                    <span className="font-medium text-green-600">-₹{Number(discount).toFixed(2)}</span>
                   </div>
                 )}
 
@@ -372,7 +377,7 @@ const processPayment = () => {
 
                 <div className="flex justify-between font-semibold text-gray-900 text-lg">
                   <span>Total:</span>
-                  <span>₹{totalAmount.toFixed(2)}</span>
+                  <span>₹{Number(totalAmount).toFixed(2)}</span>
                 </div>
 
                 <button
