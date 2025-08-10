@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { FaTimes, FaArrowLeft, FaCheckCircle, FaMobileAlt } from 'react-icons/fa';
 
@@ -19,6 +18,11 @@ const KhaltiPayment = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [errors, setErrors] = useState({});
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -26,7 +30,7 @@ const KhaltiPayment = ({
       ...prev,
       [name]: value
     }));
-    
+
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
@@ -34,31 +38,31 @@ const KhaltiPayment = ({
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!paymentDetails.mobileNumber || paymentDetails.mobileNumber.length !== 10) {
       newErrors.mobileNumber = 'Please enter a valid 10-digit mobile number';
     }
-    
+
     if (!paymentDetails.khaltiPin || paymentDetails.khaltiPin.length < 4) {
       newErrors.khaltiPin = 'Please enter your Khalti PIN';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
-    
+
     setIsProcessing(true);
-    
+
     // Simulate Khalti payment processing
     setTimeout(() => {
       setIsProcessing(false);
       setPaymentSuccess(true);
-      
+
       const transactionData = {
         transactionId: 'KHL' + Math.floor(Math.random() * 1000000000).toString().padStart(10, '0'),
         date: new Date().toLocaleString(),
@@ -71,7 +75,7 @@ const KhaltiPayment = ({
         discount: Number(discount),
         appliedPromo: appliedPromo ? appliedPromo.label : null
       };
-      
+
       setTimeout(() => {
         onPaymentSuccess(transactionData);
         onClose();
@@ -81,8 +85,8 @@ const KhaltiPayment = ({
 
   if (paymentSuccess) {
     return (
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 text-center">
+      <div className={`fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-500 ${isVisible ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '200ms' }}>
+        <div className={`bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 text-center transform transition-transform duration-500 ${isVisible ? 'scale-100' : 'scale-0'}`}>
           <FaCheckCircle className="text-green-500 text-6xl mx-auto mb-4" />
           <h3 className="text-2xl font-bold text-gray-800 mb-2">Payment Successful!</h3>
           <p className="text-gray-600 mb-4">Your Khalti payment has been processed successfully.</p>
@@ -96,8 +100,8 @@ const KhaltiPayment = ({
 
   if (isProcessing) {
     return (
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 text-center">
+      <div className={`fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-500 ${isVisible ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '200ms' }}>
+        <div className={`bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 text-center transform transition-transform duration-500 ${isVisible ? 'scale-100' : 'scale-0'}`}>
           <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-purple-600 mx-auto mb-4"></div>
           <h3 className="text-2xl font-bold text-gray-800 mb-2">Processing Payment</h3>
           <p className="text-gray-600 mb-4">Please wait while we process your Khalti payment...</p>
@@ -110,8 +114,8 @@ const KhaltiPayment = ({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+    <div className={`fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-500 ${isVisible ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: '200ms' }}>
+      <div className={`bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-transform duration-500 ${isVisible ? 'scale-100' : 'scale-0'}`}>
         {/* Header */}
         <div className="bg-purple-600 p-6 text-white">
           <div className="flex justify-between items-center">

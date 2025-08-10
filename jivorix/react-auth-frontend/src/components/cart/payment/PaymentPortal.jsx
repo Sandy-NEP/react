@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaCreditCard, FaMobile, FaTimes, FaArrowLeft } from 'react-icons/fa';
 import CreditCardPayment from './CreditCardPayment';
 import EsewaPayment from './EsewaPayment';
@@ -19,6 +19,11 @@ const PaymentPortal = ({
 }) => {
   const [selectedPaymentType, setSelectedPaymentType] = useState(null);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
 
   const paymentTypes = [
     {
@@ -179,8 +184,8 @@ const PaymentPortal = ({
   // Show online payment methods selection
   if (selectedPaymentType === 'online') {
     return (
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden">
+      <div className={`fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-all duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
+        <div className={`bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden transform transition-all duration-300 ease-out ${isVisible ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'}`}>
           {/* Header */}
           <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-6 text-white">
             <div className="flex justify-between items-center">
@@ -213,7 +218,7 @@ const PaymentPortal = ({
                   <div
                     key={method.id}
                     onClick={() => setSelectedPaymentMethod(method.id)}
-                    className="p-4 border-2 border-gray-200 rounded-xl cursor-pointer transition duration-200 shadow-sm hover:shadow-md hover:border-indigo-400 group"
+                    className="p-4 border-2 border-gray-200 rounded-xl cursor-pointer transition-all duration-300 shadow-sm hover:shadow-lg hover:border-indigo-400 hover:scale-105 group transform"
                   >
                     <div className="flex flex-col items-center text-center gap-3">
                       <div className="w-16 h-16 bg-white rounded-xl border border-gray-300 flex items-center justify-center shadow group-hover:scale-105 transition-transform">
@@ -302,8 +307,8 @@ const PaymentPortal = ({
 
   // Main payment type selection
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden">
+    <div className={`fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-all duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
+      <div className={`bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden transform transition-all duration-300 ease-out ${isVisible ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'}`}>
         {/* Header */}
         <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white">
           <div className="flex justify-between items-center">
@@ -331,7 +336,7 @@ const PaymentPortal = ({
                 <div
                   key={type.id}
                   onClick={() => setSelectedPaymentType(type.id)}
-                  className="border-2 border-gray-200 rounded-xl p-6 cursor-pointer hover:border-indigo-400 hover:shadow-lg transition-all duration-200 group"
+                  className="border-2 border-gray-200 rounded-xl p-6 cursor-pointer hover:border-indigo-400 hover:shadow-lg hover:scale-105 transition-all duration-300 group transform"
                 >
                   <div className="flex items-start gap-4">
                     <div className={`w-16 h-16 bg-gradient-to-r ${type.color} rounded-xl flex items-center justify-center text-white shadow-lg group-hover:scale-105 transition-transform`}>

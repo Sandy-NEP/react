@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaCheckCircle, FaShoppingBag } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
@@ -6,6 +6,11 @@ import { useSelector } from 'react-redux';
 const PaymentSuccess = ({ onClose }) => {
   const navigate = useNavigate();
   const { paymentSuccess, paymentDetails } = useSelector((state) => state.cart);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
 
   // If paymentSuccess is false, redirect to shop or cart
   if (!paymentSuccess) {
@@ -32,12 +37,15 @@ const PaymentSuccess = ({ onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
-        <div className="bg-green-500 p-6 text-white text-center">
-          <FaCheckCircle className="text-5xl mx-auto mb-4" />
-          <h2 className="text-2xl font-bold">Payment Successful!</h2>
-          <p className="text-lg mt-2">Thank you for your purchase</p>
+    <div className={`fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-all duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
+      <div className={`bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all duration-300 ease-out animate-bounce-in ${isVisible ? 'scale-100' : 'scale-95'}`}>
+        <div className="bg-green-500 p-6 text-white text-center relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-emerald-500 opacity-90"></div>
+          <div className="relative z-10">
+            <FaCheckCircle className="text-5xl mx-auto mb-4 animate-bounce" />
+            <h2 className="text-2xl font-bold">Payment Successful!</h2>
+            <p className="text-lg mt-2">Thank you for your purchase</p>
+          </div>
         </div>
 
         <div className="p-6">
