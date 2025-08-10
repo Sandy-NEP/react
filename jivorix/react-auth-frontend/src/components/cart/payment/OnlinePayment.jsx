@@ -14,7 +14,7 @@ const OnlinePayment = ({
 }) => {
   const [selectedMethod, setSelectedMethod] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
-  const [showPaymentPage, setShowPaymentPage] = useState(false);
+  const [showSpecificPayment, setShowSpecificPayment] = useState(false); // Renamed from showPaymentPage
   const [paymentDetails, setPaymentDetails] = useState({
     customerName: '',
     mobileNumber: '',
@@ -29,7 +29,7 @@ const OnlinePayment = ({
     {
       id: 'esewa',
       name: 'eSewa',
-      icon: 'src/components/cart/images/esewa.png', 
+      icon: 'src/components/cart/images/esewa.png',
       description: 'Pay securely with your eSewa wallet',
       fields: ['mobileNumber'],
       primaryColor: '#55C22B',
@@ -92,11 +92,12 @@ const OnlinePayment = ({
 
   const handleProceed = () => {
     if (!selectedMethod) return;
-    setShowPaymentPage(true);
+    setShowSpecificPayment(true);
   };
 
   const handleBackToMethods = () => {
-    setShowPaymentPage(false);
+    setShowSpecificPayment(false);
+    setSelectedMethod(null);
   };
 
 const processPayment = () => {
@@ -136,12 +137,12 @@ const processPayment = () => {
 
   const renderPaymentPage = () => {
     if (!selectedMethod) return null;
-    
+
     const methodConfig = PAYMENT_OPTIONS.find(m => m.id === selectedMethod.id);
-    
+
     if (paymentSuccess) {
       return (
-        <div 
+        <div
           className="flex flex-col items-center justify-center p-8 text-center"
           style={{ backgroundColor: methodConfig.secondaryColor }}
         >
@@ -154,11 +155,11 @@ const processPayment = () => {
 
     if (paymentProcessing) {
       return (
-        <div 
+        <div
           className="flex flex-col items-center justify-center p-8 text-center"
           style={{ backgroundColor: methodConfig.secondaryColor }}
         >
-          <div 
+          <div
             className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 mb-4"
             style={{ borderColor: methodConfig.primaryColor }}
           ></div>
@@ -169,37 +170,37 @@ const processPayment = () => {
     }
 
     return (
-      <div 
+      <div
         className="min-h-full"
         style={{ backgroundColor: methodConfig.secondaryColor }}
       >
-        <div 
+        <div
           className="p-5"
-          style={{ 
+          style={{
             backgroundColor: methodConfig.primaryColor,
             color: methodConfig.textColor
           }}
         >
-          <button 
+          <button
             onClick={handleBackToMethods}
             className="flex items-center hover:opacity-80"
           >
             <FaArrowLeft className="mr-2" /> Back to payment methods
           </button>
         </div>
-        
+
         <div className="p-6">
           <div className="flex items-center gap-4 mb-6">
-            <div 
+            <div
               className="w-16 h-16 bg-white rounded-xl border border-gray-300 flex items-center justify-center shadow"
               style={{ borderColor: methodConfig.primaryColor }}
             >
-              <img 
-                src={methodConfig.icon} 
-                alt={methodConfig.name} 
-                className="w-full h-full object-contain p-1" 
+              <img
+                src={methodConfig.icon}
+                alt={methodConfig.name}
+                className="w-full h-full object-contain p-1"
                 onError={(e) => {
-                  e.target.onerror = null; 
+                  e.target.onerror = null;
                   e.target.src = '/images/payments/default.png';
                 }}
               />
@@ -209,7 +210,7 @@ const processPayment = () => {
               <p className="text-gray-600">Amount to pay: ₹{Number(totalAmount).toFixed(2)}</p>
             </div>
           </div>
-          
+
           <form onSubmit={handlePaymentSubmit}>
             {methodConfig.fields.includes('customerName') && (
               <div className="mb-4">
@@ -224,7 +225,7 @@ const processPayment = () => {
                 />
               </div>
             )}
-            
+
             {methodConfig.fields.includes('mobileNumber') && (
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-medium mb-2">Mobile Number</label>
@@ -238,7 +239,7 @@ const processPayment = () => {
                 />
               </div>
             )}
-            
+
             {methodConfig.fields.includes('email') && (
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-medium mb-2">Email Address</label>
@@ -252,9 +253,9 @@ const processPayment = () => {
                 />
               </div>
             )}
-            
+
             {methodConfig.id === 'connectips' && (
-              <div 
+              <div
                 className="mb-6 p-4 rounded-md"
                 style={{ backgroundColor: methodConfig.primaryColor + '20' }}
               >
@@ -267,7 +268,7 @@ const processPayment = () => {
                 </p>
               </div>
             )}
-            
+
             <button
               type="submit"
               className="w-full py-3 text-white rounded-xl font-semibold tracking-wide hover:opacity-90 transition"
@@ -285,25 +286,25 @@ const processPayment = () => {
     <div className={`fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden transform transition-all duration-300 ease-in-out scale-100 max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div 
+        <div
           className="p-5 flex justify-between items-center"
-          style={showPaymentPage && selectedMethod ? { 
+          style={showSpecificPayment && selectedMethod ? {
             backgroundColor: PAYMENT_OPTIONS.find(m => m.id === selectedMethod.id)?.primaryColor || '#6366F1',
             color: PAYMENT_OPTIONS.find(m => m.id === selectedMethod.id)?.textColor || '#ffffff'
-          } : { 
+          } : {
             background: 'linear-gradient(to right, #6366F1, #8B5CF6)',
             color: '#ffffff'
           }}
         >
           <h3 className="text-2xl font-bold">
-            {showPaymentPage ? `Pay with ${selectedMethod?.name}` : 'Choose Payment Method'}
+            {showSpecificPayment ? `Pay with ${selectedMethod?.name}` : 'Choose Payment Method'}
           </h3>
           <button onClick={onClose} className="hover:opacity-80 transition">
             <FaTimes className="h-6 w-6" />
           </button>
         </div>
 
-        {showPaymentPage ? (
+        {showSpecificPayment ? (
           renderPaymentPage()
         ) : (
           <div className="flex flex-col md:flex-row">
@@ -320,16 +321,16 @@ const processPayment = () => {
                   onClick={() => setSelectedMethod(option)}
                 >
                   <div className="flex items-center gap-4">
-                    <div 
+                    <div
                       className="w-14 h-14 bg-white rounded-xl border border-gray-300 flex items-center justify-center shadow"
                       style={{ borderColor: option.primaryColor }}
                     >
-                      <img 
-                        src={option.icon} 
-                        alt={option.name} 
-                        className="w-full h-full object-contain p-1" 
+                      <img
+                        src={option.icon}
+                        alt={option.name}
+                        className="w-full h-full object-contain p-1"
                         onError={(e) => {
-                          e.target.onerror = null; 
+                          e.target.onerror = null;
                           e.target.src = '/images/payments/default.png';
                         }}
                       />
