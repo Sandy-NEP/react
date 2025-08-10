@@ -22,6 +22,7 @@ import ForgotPassword from './pages/reset/ForgetPassword';
 import ResetPassword from './pages/reset/ResetPassword';
 import PaymentSuccess from './components/cart/payment/PaymentSuccess';
 import OrderDetails from './pages/admin/orderDetail/OrderDetails';
+import OrderHistory from './pages/OrderHistory';
 import { motion } from "framer-motion";
 import Breadcrumbs from './components/navbar/Breadcrumbs';
 import LeftDrawer from './components/home/LeftDrawer'; // ✅ NEW
@@ -31,7 +32,7 @@ function AppContent() {
   const isAuthRoute = ['/login', '/signup', '/', '/forgot-password', '/reset-password'].includes(location.pathname);
   const isAdminPage = location.pathname === '/AdminUsers';
 
-  const hideLeftHomeRoutes = ['/about', '/item/', '/cart', '/payment-success', '/order-details'];
+  const hideLeftHomeRoutes = ['/about', '/item/', '/cart', '/payment-success', '/order-details', '/order-history'];
   const shouldHideLeftHome = hideLeftHomeRoutes.some(route =>
     location.pathname.startsWith(route)
   );
@@ -68,6 +69,7 @@ function AppContent() {
                   <Route path="/cart" element={<Cart />} />
                   <Route path="/payment-success" element={<PaymentSuccess onClose={() => Navigate('/shop')} />} />
                   <Route path="/order-details" element={<OrderDetails onBack={() => Navigate('/cart')} />} />
+                  <Route path="/order-history" element={<OrderHistory />} />
                 </Route>
               </Routes>
             ) : (

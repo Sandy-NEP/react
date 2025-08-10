@@ -131,6 +131,7 @@ try {
             discount DECIMAL(10, 2) NOT NULL,
             applied_promo VARCHAR(100),
             order_date DATETIME NOT NULL,
+            order_status ENUM('pending', 'processing', 'shipped', 'delivered', 'cancelled') DEFAULT 'pending',
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

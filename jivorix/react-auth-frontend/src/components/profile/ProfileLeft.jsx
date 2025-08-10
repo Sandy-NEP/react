@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { assets } from '../../assets/assets';
 import axios from 'axios';
-import { FaCamera } from 'react-icons/fa';
+import { FaCamera, FaHistory } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
 const ProfileLeft = () => {
     const [userData, setUserData] = useState(null);
@@ -175,6 +176,22 @@ const ProfileLeft = () => {
                                 )}
                             </div>
                         </div>
+                    </div>
+
+                    <div>
+                        <div className='flex flex-col gap-4 justify-center'>
+                            <h4 className='profileHead'>Quick Actions</h4>
+                            <div className='flex flex-col gap-2'>
+                                <Link
+                                    to="/order-history"
+                                    className='flex items-center gap-3 p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors duration-200'
+                                >
+                                    <FaHistory className='text-blue-600' />
+                                    <span className='text-blue-700 font-medium'>Order History</span>
+                                </Link>
+                            </div>
+                        </div>
+                        <div className='h-[2px] w-full bg-[#E0D7CC] mt-6'></div>
                     </div>
 
                     <div>
