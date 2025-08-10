@@ -184,6 +184,45 @@ try {
             payment_status ENUM('pending', 'completed', 'failed', 'cancelled') DEFAULT 'pending',
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+        CREATE TABLE IF NOT EXISTS order_history (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            user_email VARCHAR(255) NOT NULL,
+            customer_name VARCHAR(100) NOT NULL,
+            phone VARCHAR(15) NOT NULL,
+            country VARCHAR(100) NOT NULL,
+            city VARCHAR(100) NOT NULL,
+            address TEXT NOT NULL,
+            products JSON NOT NULL,
+            transaction_id VARCHAR(50) NOT NULL,
+            payment_method ENUM('paymentondelivery', 'onlinepayment', 'creditcardpayment') NOT NULL,
+            payment_amount DECIMAL(10, 2) NOT NULL,
+            product_amount DECIMAL(10, 2) NOT NULL,
+            delivery_charge DECIMAL(10, 2) NOT NULL,
+            discount DECIMAL(10, 2) NOT NULL,
+            applied_promo VARCHAR(100),
+            order_date DATETIME NOT NULL,
+            order_status ENUM('pending', 'processing', 'shipped', 'delivered', 'cancelled') DEFAULT 'pending',
+            payment_gateway VARCHAR(50),
+            gateway_transaction_id VARCHAR(100),
+            card_last_four VARCHAR(4),
+            card_type VARCHAR(20),
+            payment_processor VARCHAR(50),
+            processor_transaction_id VARCHAR(100),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            is_deleted TINYINT(1) DEFAULT 0,
+            deleted_at TIMESTAMP NULL,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            INDEX idx_user_id (user_id),
+            INDEX idx_user_email (user_email),
+            INDEX idx_transaction_id (transaction_id),
+            INDEX idx_order_status (order_status),
+            INDEX idx_payment_method (payment_method),
+            INDEX idx_order_date (order_date),
+            INDEX idx_is_deleted (is_deleted)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ");
 } catch(PDOException $e) {
     sendResponse(false, "Database connection or table creation failed: " . $e->getMessage());
