@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate, useNavigate } from 'react-router-dom';
 import Navbar from './components/navbar/Navbar';
 import Footer from './components/footer/Footer';
 import PrivateRoute from './components/productDetail/PrivateRoute';
@@ -29,6 +29,7 @@ import LeftDrawer from './components/home/LeftDrawer'; // ✅ NEW
 
 function AppContent() {
   const location = useLocation();
+  const navigate = useNavigate();
   const isAuthRoute = ['/login', '/signup', '/', '/forgot-password', '/reset-password'].includes(location.pathname);
   const isAdminPage = location.pathname === '/AdminUsers';
 
@@ -67,8 +68,8 @@ function AppContent() {
                   <Route path="/about" element={<About />} />
                   <Route path="/item/:id" element={<ProductDetail />} />
                   <Route path="/cart" element={<Cart />} />
-                  <Route path="/payment-success" element={<PaymentSuccess onClose={() => Navigate('/shop')} />} />
-                  <Route path="/order-details" element={<OrderDetails onBack={() => Navigate('/cart')} />} />
+                  <Route path="/payment-success" element={<PaymentSuccess onClose={() => navigate('/shop')} />} />
+                  <Route path="/order-details" element={<OrderDetails onBack={() => navigate('/cart')} />} />
                   <Route path="/order-history" element={<OrderHistory />} />
                 </Route>
               </Routes>
