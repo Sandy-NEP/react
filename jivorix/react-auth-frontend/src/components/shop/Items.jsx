@@ -5,9 +5,10 @@ import { useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { initializeItems, goToPage, nextPage, prevPage } from '../../redux/pagination/paginationSlice';
 import { applyCategoryFilter, goToCategoryPage, nextCategoryPage, prevCategoryPage } from '../../redux/category/categoryPaginationSlice';
-import { addItemToCartAsync } from '../../redux/cart/cartSlice';
+import { addItemToCartAsync, selectItemInventory, selectIsItemAvailable } from '../../redux/cart/cartSlice';
 import { items as allItems } from '../../assets/assets';
 import { FaHeart, FaStar, FaArrowLeft, FaArrowRight, FaCheckCircle } from 'react-icons/fa';
+import InventoryDisplay from '../inventory/InventoryDisplay';
 import { addToFavoritesAsync, removeFromFavoritesAsync } from '../../redux/favorite/favoriteSlice';
 import { setSelectedItem } from '../../redux/detail/detailSlice';
 
@@ -18,7 +19,7 @@ const Items = () => {
   const { activeGender } = useSelector((state) => state.gender);
   const { refreshCount } = useSelector((state) => state.refresh);
   const { favoriteItems } = useSelector((state) => state.favorite);
-  const { items: cartItems } = useSelector(state => state.cart);
+  const { items: cartItems, inventory } = useSelector(state => state.cart);
 
   const {
     currentPage,
@@ -86,13 +87,20 @@ const Items = () => {
       return;
     }
 
+    // Check inventory availability
+    const itemInventory = inventory[item._id] || 0;
+    if (itemInventory <= 0) {
+      alert('Sorry, this item is out of stock!');
+      return;
+    }
+
     const cartItem = {
       _id: item._id,
       name: item.name,
       image: item.image,
       desc: item.desc,
-      price: parseFloat(item.sp.replace(',', '')),
-      available: item.available
+      price: parseFloat(item.sp.replace('₹', '').replace(',', '')),
+      available: itemInventory
     };
 
     try {
@@ -187,16 +195,17 @@ const Items = () => {
                 </ul>
               </div>
              <div className='flex justify-between items-center'>
-                <div className='text-[15px] text3 flex gap-[8px] max-md:text-[12px]'>Available items: <p className='font-semibold text1'>{item.available}</p></div>
+                <InventoryDisplay itemId={item._id} />
                 {isItemInCart(item._id) && (
                   <FaCheckCircle className='text-green-400 text-[19px]' />
                 )}
               </div>
               <button
-                className='productbtn w-full mt-2'
+                className={`productbtn w-full mt-2 ${(inventory[item._id] || 0) <= 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
                 onClick={(e) => handleAddToCart(e, item)}
+                disabled={(inventory[item._id] || 0) <= 0}
               >
-                Add to Cart
+                {(inventory[item._id] || 0) <= 0 ? 'Out of Stock' : 'Add to Cart'}
               </button>
             </div>
           </div>

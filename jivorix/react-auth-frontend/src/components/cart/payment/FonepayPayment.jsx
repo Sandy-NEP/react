@@ -1,6 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { FaTimes, FaArrowLeft, FaCheckCircle, FaMobileAlt } from 'react-icons/fa';
+import { useDispatch } from 'react-redux';
+import { reduceInventory } from '../../../redux/cart/cartSlice';
 
 const FonepayPayment = ({
   onClose,
@@ -10,8 +12,10 @@ const FonepayPayment = ({
   deliveryCharge = 0,
   discount = 0,
   appliedPromo = null,
-  onPaymentSuccess
+  onPaymentSuccess,
+  selectedItems = []
 }) => {
+  const dispatch = useDispatch();
   const [paymentDetails, setPaymentDetails] = useState({
     mobileNumber: '',
     fonepayPin: ''
@@ -26,7 +30,7 @@ const FonepayPayment = ({
       ...prev,
       [name]: value
     }));
-    
+
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
@@ -34,31 +38,31 @@ const FonepayPayment = ({
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!paymentDetails.mobileNumber || paymentDetails.mobileNumber.length !== 10) {
       newErrors.mobileNumber = 'Please enter a valid 10-digit mobile number';
     }
-    
+
     if (!paymentDetails.fonepayPin || paymentDetails.fonepayPin.length < 4) {
       newErrors.fonepayPin = 'Please enter your Fonepay PIN';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
-    
+
     setIsProcessing(true);
-    
+
     // Simulate Fonepay payment processing
     setTimeout(() => {
       setIsProcessing(false);
       setPaymentSuccess(true);
-      
+
       const transactionData = {
         transactionId: 'FNP' + Math.floor(Math.random() * 1000000000).toString().padStart(10, '0'),
         date: new Date().toLocaleString(),
@@ -71,7 +75,12 @@ const FonepayPayment = ({
         discount: Number(discount),
         appliedPromo: appliedPromo ? appliedPromo.label : null
       };
-      
+
+      // Reduce inventory for ordered items
+      if (selectedItems && selectedItems.length > 0) {
+        dispatch(reduceInventory({ orderedItems: selectedItems }));
+      }
+
       setTimeout(() => {
         onPaymentSuccess(transactionData);
         onClose();
@@ -129,9 +138,9 @@ const FonepayPayment = ({
           {/* Fonepay Logo and Info */}
           <div className="text-center mb-6">
             <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <img 
-                src="/src/components/cart/images/fonepay.png" 
-                alt="Fonepay" 
+              <img
+                src="/src/components/cart/images/fonepay.png"
+                alt="Fonepay"
                 className="w-16 h-16 object-contain"
                 onError={(e) => {
                   e.target.style.display = 'none';

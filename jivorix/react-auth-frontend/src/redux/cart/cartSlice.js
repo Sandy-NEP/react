@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { addItemToCartAPI, getCartItemsAPI, removeItemFromCartAPI, updateCartItemQuantityAPI } from '../../services/cartService';
+import { items } from '../../assets/assets';
 
 // Async thunks for API calls
 export const addItemToCartAsync = createAsyncThunk(
@@ -57,6 +58,10 @@ const initialState = {
   orderDetails: { user: {}, products: [] },
   loading: false,
   error: null,
+  inventory: items.reduce((acc, item) => {
+    acc[item._id] = item.available;
+    return acc;
+  }, {}),
 };
 
 const cartSlice = createSlice({
@@ -83,6 +88,22 @@ const cartSlice = createSlice({
     },
     clearError: (state) => {
       state.error = null;
+    },
+    reduceInventory: (state, action) => {
+      // Reduce inventory when order is placed
+      const { orderedItems } = action.payload;
+      orderedItems.forEach(item => {
+        if (state.inventory[item.product_id] !== undefined) {
+          state.inventory[item.product_id] = Math.max(0, state.inventory[item.product_id] - item.quantity);
+        }
+      });
+    },
+    updateInventory: (state, action) => {
+      // Update inventory for a specific item
+      const { itemId, newQuantity } = action.payload;
+      if (state.inventory[itemId] !== undefined) {
+        state.inventory[itemId] = newQuantity;
+      }
     },
   },
   extraReducers: (builder) => {
@@ -193,12 +214,23 @@ export const selectIsItemInStock = (state, itemId) => {
   return item.quantity <= item.available;
 };
 
+export const selectItemInventory = (state, itemId) => {
+  return state.cart.inventory[itemId] || 0;
+};
+
+export const selectIsItemAvailable = (state, itemId, requestedQuantity = 1) => {
+  const availableQuantity = state.cart.inventory[itemId] || 0;
+  return availableQuantity >= requestedQuantity;
+};
+
 // Export regular actions
 export const {
   toggleItemSelection,
   selectAllItems,
   setPaymentSuccess,
   clearError,
+  reduceInventory,
+  updateInventory,
 } = cartSlice.actions;
 
 export default cartSlice.reducer;

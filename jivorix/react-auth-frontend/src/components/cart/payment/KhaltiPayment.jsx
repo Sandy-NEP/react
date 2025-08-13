@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaTimes, FaArrowLeft, FaCheckCircle, FaMobileAlt } from 'react-icons/fa';
+import { useDispatch, useSelector } from 'react-redux';
+import { reduceInventory } from '../../../redux/cart/cartSlice';
 
 const KhaltiPayment = ({
   onClose,
@@ -9,8 +11,10 @@ const KhaltiPayment = ({
   deliveryCharge = 0,
   discount = 0,
   appliedPromo = null,
-  onPaymentSuccess
+  onPaymentSuccess,
+  selectedItems = []
 }) => {
+  const dispatch = useDispatch();
   const [paymentDetails, setPaymentDetails] = useState({
     mobileNumber: '',
     khaltiPin: ''
@@ -76,6 +80,11 @@ const KhaltiPayment = ({
         appliedPromo: appliedPromo ? appliedPromo.label : null
       };
 
+      // Reduce inventory for ordered items
+      if (selectedItems && selectedItems.length > 0) {
+        dispatch(reduceInventory({ orderedItems: selectedItems }));
+      }
+
       setTimeout(() => {
         onPaymentSuccess(transactionData);
         onClose();
@@ -133,9 +142,9 @@ const KhaltiPayment = ({
           {/* Khalti Logo and Info */}
           <div className="text-center mb-6">
             <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <img 
-                src="/src/components/cart/images/khalti.png" 
-                alt="Khalti" 
+              <img
+                src="/src/components/cart/images/khalti.png"
+                alt="Khalti"
                 className="w-16 h-16 object-contain"
                 onError={(e) => {
                   e.target.style.display = 'none';
