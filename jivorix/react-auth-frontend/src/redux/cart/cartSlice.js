@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { addItemToCartAPI, getCartItemsAPI, removeItemFromCartAPI, updateCartItemQuantityAPI } from '../../services/cartService';
+import { addItemToCartAPI, getCartItemsAPI, removeItemFromCartAPI, updateCartItemQuantityAPI, checkoutAPI } from '../../services/cartService';
+import { getAllInventory, initializeInventory } from '../../services/inventoryService';
 import { items } from '../../assets/assets';
 
 // Async thunks for API calls
@@ -45,6 +46,52 @@ export const updateCartItemQuantityAsync = createAsyncThunk(
     try {
       const response = await updateCartItemQuantityAPI(cartItemId, quantity);
       return { cartItemId, quantity, response };
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
+export const loadInventoryAsync = createAsyncThunk(
+  'cart/loadInventoryAsync',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await getAllInventory();
+      return response.data.inventory;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
+export const initializeInventoryAsync = createAsyncThunk(
+  'cart/initializeInventoryAsync',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await initializeInventory(items);
+      // After initialization, load the current inventory
+      const inventoryResponse = await getAllInventory();
+      return inventoryResponse.data.inventory;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
+export const checkoutAsync = createAsyncThunk(
+  'cart/checkoutAsync',
+  async (checkoutData, { getState, rejectWithValue }) => {
+    try {
+      const response = await checkoutAPI(checkoutData);
+
+      // Get current cart items to reduce inventory
+      const state = getState();
+      const cartItems = state.cart.items;
+
+      return {
+        checkoutResponse: response,
+        orderedItems: cartItems.filter(item => item.selected)
+      };
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
@@ -176,6 +223,60 @@ const cartSlice = createSlice({
         }
       })
       .addCase(updateCartItemQuantityAsync.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // Load inventory
+      .addCase(loadInventoryAsync.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(loadInventoryAsync.fulfilled, (state, action) => {
+        state.loading = false;
+        state.inventory = { ...state.inventory, ...action.payload };
+      })
+      .addCase(loadInventoryAsync.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // Initialize inventory
+      .addCase(initializeInventoryAsync.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(initializeInventoryAsync.fulfilled, (state, action) => {
+        state.loading = false;
+        state.inventory = { ...state.inventory, ...action.payload };
+      })
+      .addCase(initializeInventoryAsync.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // Checkout
+      .addCase(checkoutAsync.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(checkoutAsync.fulfilled, (state, action) => {
+        state.loading = false;
+        state.paymentSuccess = true;
+        state.paymentDetails = action.payload.checkoutResponse.data;
+
+        // Clear cart items
+        state.items = [];
+
+        // Reduce inventory for ordered items
+        const orderedItems = action.payload.orderedItems;
+        orderedItems.forEach(item => {
+          if (state.inventory[item.product_id] !== undefined) {
+            state.inventory[item.product_id] = Math.max(0, state.inventory[item.product_id] - item.quantity);
+          }
+        });
+      })
+      .addCase(checkoutAsync.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

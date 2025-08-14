@@ -5,7 +5,7 @@ import { useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { initializeItems, goToPage, nextPage, prevPage } from '../../redux/pagination/paginationSlice';
 import { applyCategoryFilter, goToCategoryPage, nextCategoryPage, prevCategoryPage } from '../../redux/category/categoryPaginationSlice';
-import { addItemToCartAsync, selectItemInventory, selectIsItemAvailable } from '../../redux/cart/cartSlice';
+import { addItemToCartAsync, selectItemInventory, selectIsItemAvailable, loadInventoryAsync, initializeInventoryAsync } from '../../redux/cart/cartSlice';
 import { items as allItems } from '../../assets/assets';
 import { FaHeart, FaStar, FaArrowLeft, FaArrowRight, FaCheckCircle } from 'react-icons/fa';
 import InventoryDisplay from '../inventory/InventoryDisplay';
@@ -36,6 +36,11 @@ const Items = () => {
 
   useEffect(() => {
     dispatch(initializeItems(allItems));
+    // Load inventory from database
+    dispatch(loadInventoryAsync()).catch(() => {
+      // If loading fails, try to initialize inventory
+      dispatch(initializeInventoryAsync());
+    });
   }, [dispatch]);
 
   const itemsToUse = activeCategory ? categoryFilteredItems : randomizedItems;

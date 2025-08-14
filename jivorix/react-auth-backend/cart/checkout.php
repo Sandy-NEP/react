@@ -235,6 +235,34 @@ try {
 
     $historyStmt->execute();
 
+    // Reduce inventory for ordered items
+    foreach ($cartItems as $item) {
+        $itemId = $item['product_id'];
+        $quantityOrdered = intval($item['quantity']);
+        
+        // Check if item exists in inventory
+        $inventoryStmt = $conn->prepare("SELECT quantity FROM inventory WHERE item_id = :itemId");
+        $inventoryStmt->bindParam(':itemId', $itemId);
+        $inventoryStmt->execute();
+        
+        $inventoryResult = $inventoryStmt->fetch();
+        if ($inventoryResult) {
+            // Update existing inventory
+            $currentQuantity = intval($inventoryResult['quantity']);
+            $newQuantity = max(0, $currentQuantity - $quantityOrdered);
+            
+            $updateStmt = $conn->prepare("UPDATE inventory SET quantity = :quantity, updated_at = NOW() WHERE item_id = :itemId");
+            $updateStmt->bindParam(':quantity', $newQuantity);
+            $updateStmt->bindParam(':itemId', $itemId);
+            $updateStmt->execute();
+        } else {
+            // If item doesn't exist in inventory, create it with 0 quantity (since it was ordered)
+            $insertStmt = $conn->prepare("INSERT INTO inventory (item_id, quantity, created_at, updated_at) VALUES (:itemId, 0, NOW(), NOW())");
+            $insertStmt->bindParam(':itemId', $itemId);
+            $insertStmt->execute();
+        }
+    }
+
     // Clear the cart after successful order
     $stmt = $conn->prepare("DELETE FROM cart_items WHERE user_id = :userId");
     $stmt->bindParam(':userId', $userId);

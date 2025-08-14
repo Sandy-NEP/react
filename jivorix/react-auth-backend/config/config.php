@@ -223,6 +223,16 @@ try {
             INDEX idx_order_date (order_date),
             INDEX idx_is_deleted (is_deleted)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+        CREATE TABLE IF NOT EXISTS inventory (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            item_id VARCHAR(255) NOT NULL UNIQUE,
+            quantity INT NOT NULL DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            INDEX idx_item_id (item_id),
+            INDEX idx_quantity (quantity)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ");
 } catch(PDOException $e) {
     sendResponse(false, "Database connection or table creation failed: " . $e->getMessage());
