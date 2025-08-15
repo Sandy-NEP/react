@@ -65,7 +65,7 @@ const CartRight = () => {
         return;
       }
 
-      const response = await fetch('http://localhost/react-auth-backend/user/get_user.php', {
+      const response = await fetch('http://localhost:8000/user/get_user.php', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,

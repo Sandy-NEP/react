@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Use the current running backend server for development
-const API_BASE_URL = 'http://localhost/react-auth-backend';
+const API_BASE_URL = 'http://localhost:8000';
 
 // Get user from localStorage
 const getUser = () => {

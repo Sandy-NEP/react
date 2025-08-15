@@ -11,7 +11,7 @@ export default defineConfig({
     allowedHosts:['1812636f-6d08-4fbb-9d5c-9a490bbc9083-00-4zorf5u7lvpl.sisko.replit.dev'],
     proxy: {
       '/api': {
-        target: 'http://localhost/react-auth-backend',
+        target: 'http://localhost:8000',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },

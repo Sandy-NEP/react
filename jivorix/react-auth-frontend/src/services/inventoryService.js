@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost/react-auth-backend';
+const API_BASE_URL = 'http://localhost:8000';
 
 // Get inventory for a specific item
 export const getItemInventory = async (itemId) => {
